@@ -1,0 +1,55 @@
+NOTES ON HOW TO SET UP AND WRITE FOR API CALLS:
+
+Steps:
+1. Install axios: npm i axios 
+2. Now create file where the axios call will be made from.
+3. Set up the following code:
+import axios, { AxiosProxyConfig, AxiosRequestConfig } from 'axios';
+
+
+import axios, { AxiosRequestConfig } from 'axios';
+
+
+async function getSong(){
+
+ type SongDetails ={
+    'tracks':{
+        'hits':[]
+    },
+    'artists':{
+        'hits':[]
+    }
+ } 
+
+ try{
+     const options:AxiosRequestConfig = {
+      'method': 'GET',
+      'url': 'https://shazam.p.rapidapi.com/search',
+      'params': {'term':'kiss the sky' , 'locale': 'en-US', 'offset': '0', 'limit': '5'},
+      'headers': {
+        'X-RapidAPI-Host': 'shazam.p.rapidapi.com',
+        'X-RapidAPI-Key': 'ef06e7a069msh025c9e3833f9827p193ea9jsna8c2a39ee783'
+      }
+    };
+
+    const {data} = await axios.get<SongDetails>('https://shazam.p.rapidapi.com/search/', options)
+    const {tracks, artists} = data;
+    console.log(tracks)
+    console.log(artists)
+
+ }catch(error:any){
+    console.log(error)
+ }
+    
+
+}
+
+getSong();
+// export default {getSong}
+
+
+
+
+
+
+

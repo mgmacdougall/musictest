@@ -1,0 +1,154 @@
+NOTES ON SETTING UP AN API PROJECT WITH typescript
+
+Stage 1: Install & configure base packages
+1. The first step is to init the project with npm init --yes
+- this will initialize the project with all the default values.
+2. Install the following devDependencies:
+npm i --save-dev typescript >> The main type script typescript language
+
+npm i --save-dev typescript ts-node @types/node >> these are the defintions for ts-node - that's so can see the node type definitions
+npm i --save-dev ts-node  >> This is so we can run node projects with typescript
+npm i --save-dev @types/node >> definitions for node.
+
+3. Create the tsconfig.json by running: npx tsc --init
+This will create the tsconfig.json at the root of the folder.  The tsconfig holds how the typescript will be compiled and handled.
+
+4. Open the tsconfig.json and change the following:
+ "target": "es5" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+        "lib": [
+            "ES6",
+            "DOM"
+        ]  >> This allows us to use ES6 and manipulate the DOM (DOM is not needed for api project but required for UI development)
+"module": "commonjs" /* Specify what module code is generated. */,>> This tells what type of module system require vs. import (ES6)
+"rootDir": "./src" /* Specify the root folder within your source files. */, >> The location where the source ts files are  located.
+"outDir": "./dist" /* Specify an output folder for all emitted files. */, >> As we compile to js, this is the location where the output is placed.
+"esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables `allowSyntheticDefaultImports` for type compatibility. */,
+"forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
+
+/* Type Checking */
+  "strict": true /* Enable all strict type-checking options. */,
+  "noImplicitAny": true /* Enable error reporting for expressions and declarations with an implied `any` type.. */,
+  "skipLibCheck": true /* Skip type checking all .d.ts files. */
+Then outside the last brace before the json closing brace add the following:
+ },
+    "exclude": ["node_modules", "./dist", "spec"] // this will exclude these directories from checking.
+
+5. Install eslint and 
+npm i eslint -D >> core eslint rules
+npm i eslint-config-prettier -D >> turns off any colluding rules between ESLint and prettier
+
+6. Run the following command: npx eslint --init >> walkthrough the steps presented, use Node, common modules, save as JSON.
+
+7. Now open the .eslintrc file and make the following changes:
+{
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es2021": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/consistent-type-definitions": ["error", "type"]
+  }
+}
+7. Install prettier with the following command: npm i prettier -d
+8. Create a file called .prettierrc.
+9. Add the following suggested options:
+{
+  "semi": true,
+  "singleQuote": true,
+  "arrowParens": "avoid",
+  "printWidth": 120,
+  "tabWidth": 4
+}
+10. Add the following scripts to the 'scripts' section in package.json:
+        "lint": "eslint --ext .js,.ts .", >> lints the give extensions in the root relative to this path .
+        "lint:fix": "npm run lint -- --fix",  >> fixes and issues
+        "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts)\"", >> will format using prettier
+
+Stage 2: Create the File Structure:
+1. Create a directory called src at root of main directory. >> this is where ts files live.
+2. Create a single file called index.ts at the \src\index.ts
+3. Create another directory called tests under src.
+4. Create another directory under tests called helper.
+5. At the root of the project create a directory called \dist >> this is where the compiled ts to js files will be compiled too.
+The directory structure should look like this:
+\project
+  \dist
+  \src
+  index.ts
+    \tests 
+        \helpers
+
+Stage 3: Npm Scripts
+1. Open the package.json
+2. In the "scripts" section add: "build": "npx tsc".
+3. Open up the index.ts 
+4. Add the following code: 
+function test(){
+  return 5;
+}
+console.log(test());
+5. Save and close the file.
+6. From a command line run the script using: npm run build.
+7. If all goes well you will see no errors.
+8. Test the compiled code to see if it runs by running: node \dist\index.js
+9. If all is well you should 5 print to the console.
+
+Stage 4: Set up Testing with Jasmine.
+1. Again at the command prompt run the following npm install commands:
+npm i jasmine >> The jasmine test framework
+npm i jasmine-spec-reporter >> for reporting - configuration in helper file (get to that later.)
+2. After complete run the following command: npx jasmine init >> this initializes jasmine
+3. This will create a directory called \spec\support
+4. In there there will be a json file called jasmine.json.
+5. Open and add the following:
+{
+    "spec_dir": "dist/tests",
+    "spec_files": ["**/*[sS]pec.js"],
+    "helpers": ["helpers/**/*.js"],
+    "stopSpecOnExpectationFailure": false,
+    "random": false
+}
+6. Save the file.
+7. Now navigsate to the \src\tests\helpers directory.
+8. Create a file called reporter.ts >> this is the config for the jsamine report - this needs to be compiled from ts to js to report on the run results.
+9. Add the following code (from this link: https://jasmine.github.io/setup/nodejs.html)
+import { DisplayProcessor, SpecReporter, StacktraceOption } from 'jasmine-spec-reporter';
+import SuiteInfo = jasmine.SuiteInfo;
+
+class CustomProcessor extends DisplayProcessor {
+    public displayJasmineStarted(info: SuiteInfo, log: string): string {
+        return `TypeScript ${log}`;
+    }
+}
+
+jasmine.getEnv().clearReporters();
+jasmine.getEnv().addReporter(
+    new SpecReporter({
+        spec: {
+            displayStacktrace: StacktraceOption.NONE,
+        },
+        customProcessors: [CustomProcessor],
+    })
+);
+10. Now navigate to the \src\tests\ and create a file called index.spec.ts.
+11. Now import the file under tests using import <file> from <location>;
+or alternatively use the {func, func} to pull out the functions under test.
+12. Now you can write the unit test.
+13. Now run the tests by using npm run test.
+14. If everything is ok, then you'll see no errors but a result in the console. 
+
+
+
+
