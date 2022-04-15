@@ -149,6 +149,60 @@ or alternatively use the {func, func} to pull out the functions under test.
 13. Now run the tests by using npm run test.
 14. If everything is ok, then you'll see no errors but a result in the console. 
 
+Stage 5: Install and Configure Express
+1. Run the following command line: npm i  express @types/express << These are the express and type definitions
+2. Create the index.ts in the src directory.
+3. Create a barebones server with the following code:
+import express, {Express, Request, Response} from 'express';
+import dotenv from 'dotenv';
+dotenv.config();
 
+const app:Express = express();
+const PORT = process.env.SERVERPORT;
+
+app.get('/', (req:Request, res:Response)=>{
+    res.send('Hi there from Server!')
+})
+
+app.listen(PORT, ()=>console.log(`⚡️[server]: Server is running at https://localhost:${PORT}` ))
+4. Now install nodemon (to monitor changes): npm i nodemon
+5. Add the following section to the package.json (this will configure nodemon correctly for monitoring changes):
+  "nodemonConfig": {
+        "ignore": [ << all things here will be ignored for changes.
+            "**/*.test.ts",
+            "**/*.spec.ts",
+            ".git",
+            "node_modules",
+            ".env",
+            "*.txt"
+        ],
+        "watch": [ << what directory to watch for changes.
+            "src"
+        ],
+        "exec": "npm start", << when changes detected, run the npm start script
+        "ext": "ts" << What file extension to watch for changes on.
+    }
+6. Add the following to the the npm script section in the package.json:
+"start:watch": "nodemon" <- this will start nodmon in watch mode.
+--> when change in ts is detected then the npm start command will run 
+--> remember npm start does the following: "start": "npm run build && node dist/index.js", 
+  -- it builds the project and starts the server from the dist/index.js folder. Giving the user access to the site.
+
+Stage 6: Add package dot.env to hold local variables.
+1. Run the npm i dotenv 
+2. Now create a file called .env
+3. Anything in this file will be used on the process.env.
+4. Open .env and add a string in the following format:
+SERVERPORT=5055
+5. Save changes & close.
+6. Now open the .gitignore and add the .env file.
+7. Save and close
+8. Open the index.ts if not already opened.
+9. Add the following lines at the beginning of the file:
+import dotenv from 'dotenv';
+dotenv.config();
+10. This will import set the SERVERPORT on the process.env at the beginning of the launch.
+
+Now start the server with the npm run start:watch to run in watch mode.
 
 
